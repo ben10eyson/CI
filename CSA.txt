@@ -1,0 +1,34 @@
+import numpy as np
+
+def fitness_function(x):
+  return x**2
+
+population_size=10
+selection_size=5
+clone_factor=3
+mutation_rate=0.1
+generations=20
+
+population=np.random.uniform(-10,10,population_size)
+
+for gen in range(generations):
+  fitness=np.array([fitness_function(x) for x in population])
+  sorted_indices=np.argsort(fitness)
+  population=population[sorted_indices]
+  selected=population[:population_size]
+
+  clones=[]
+  for s in selected:
+    for _ in range(clone_factor):
+      clone=s+mutation_rate*np.random.randn()
+      clones.append(clone)
+  clones=np.array(clones)
+
+  combined=np.concatenate((population,clones))
+  combined_fitness=np.array([fitness_function(x) for x in combined])
+  best_indices=np.argsort(combined_fitness)[:population_size]
+  population=combined[best_indices]
+
+  print(f"Generation {gen+1}: Best value ={population[0]}:")
+
+print("\n optimal solution:",population[0])

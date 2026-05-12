@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_blobs
+
+X, y = make_blobs(n_samples=200, centers=2,
+                  cluster_std=2.5, random_state=42)
+
+normal = X[y == 0]
+damaged=X[y==1]
+
+detectors = []
+
+while len(detectors) < 50:
+    d = np.random.uniform(X.min(), X.max(), 2)
+
+    if np.all(np.linalg.norm(normal - d, axis=1) > 2):
+        detectors.append(d)
+
+detectors = np.array(detectors)
+
+predictions = []
+
+for x in X:
+    if np.any(np.linalg.norm(detectors - x, axis=1) < 2):
+        predictions.append(1)
+    else:
+        predictions.append(0)
+
+plt.figure(figsize=(7,5))
+
+plt.scatter(X[:,0], X[:,1],
+            c=predictions,
+            cmap='coolwarm',
+            alpha=0.7)
+
+plt.scatter(detectors[:,0], detectors[:,1],
+            marker='x', s=80)
+
+plt.title("AIS Structural Damage Classification")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.grid(True)
+
+plt.show()

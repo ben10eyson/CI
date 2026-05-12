@@ -1,0 +1,65 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+cities = np.array([[0,0],[1,5],[5,2],[6,6],[8,3]])
+n = len(cities)
+
+dist = np.array([[np.linalg.norm(cities[i]-cities[j])
+                  for j in range(n)] for i in range(n)])
+
+pheromone = np.ones((n,n))
+
+best_path = None
+best_length = float('inf')
+
+for _ in range(50):
+
+    for ant in range(10):
+
+        path = [np.random.randint(n)]
+
+        while len(path) < n:
+
+            current = path[-1]
+
+            probs = []
+
+            for j in range(n):
+
+                if j not in path:
+                    probs.append(
+                        pheromone[current][j] *
+                        (1/dist[current][j])**2
+                    )
+                else:
+                    probs.append(0)
+
+            probs = np.array(probs)/np.sum(probs)
+
+            next_city = np.random.choice(range(n), p=probs)
+
+            path.append(next_city)
+
+        path.append(path[0])
+
+        length = sum(dist[path[i]][path[i+1]]
+                     for i in range(n))
+
+        if length < best_length:
+            best_length = length
+            best_path = path
+
+        
+        for i in range(n):
+            pheromone[path[i]][path[i+1]] += 1/length
+
+
+coords = cities[best_path]
+
+plt.plot(coords[:,0], coords[:,1], marker='o')
+plt.title("ACO Best Path")
+plt.grid(True)
+plt.show()
+
+print("Best Path:", best_path)
+print("Best Distance:", best_length)
