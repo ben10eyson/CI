@@ -1,0 +1,84 @@
+interface.java
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface StringConcat extends Remote {
+
+    public String concatenate(String str1, String str2)
+            throws RemoteException;
+}
+implementation.java
+import java.rmi.server.UnicastRemoteObject;
+import java.rmi.RemoteException;
+
+public class StringConcatImpl extends UnicastRemoteObject
+        implements StringConcat {
+
+    protected StringConcatImpl() throws RemoteException {
+        super();
+    }
+
+    public String concatenate(String str1, String str2) {
+        return str1 + str2;
+    }
+}
+server.java
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class Server {
+
+    public static void main(String[] args) {
+
+        try {
+
+            StringConcat obj = new StringConcatImpl();
+
+            Registry registry =
+                    LocateRegistry.createRegistry(1099);
+
+            registry.rebind("ConcatService", obj);
+
+            System.out.println("Server is running...");
+
+        } catch (Exception e) {
+
+            System.out.println("Server exception: " + e);
+        }
+    }
+}
+client.java
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.Scanner;
+
+public class Client {
+
+    public static void main(String[] args) {
+
+        try {
+
+            Registry registry =
+                    LocateRegistry.getRegistry("localhost", 1099);
+
+            StringConcat obj =
+                    (StringConcat) registry.lookup("ConcatService");
+
+            Scanner sc = new Scanner(System.in);
+
+            System.out.print("Enter first string: ");
+            String str1 = sc.nextLine();
+
+            System.out.print("Enter second string: ");
+            String str2 = sc.nextLine();
+
+            String result = obj.concatenate(str1, str2);
+
+            System.out.println("Concatenated String: " + result);
+
+        } catch (Exception e) {
+
+            System.out.println("Client exception: " + e);
+        }
+    }
+}

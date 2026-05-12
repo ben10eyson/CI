@@ -1,0 +1,72 @@
+import random
+
+class Server:
+
+    def __init__(self, name):
+        self.name = name
+        self.load = 0
+
+    def handle_request(self):
+        self.load += 1
+
+    def finish_request(self):
+        if self.load > 0:
+            self.load -= 1
+
+class RoundRobin:
+
+    def __init__(self, servers):
+        self.servers = servers
+        self.index = 0
+
+    def get_server(self):
+
+        server = self.servers[self.index]
+
+        self.index = (self.index + 1) % len(self.servers)
+
+        return server
+
+
+class LeastConnections:
+
+    def __init__(self, servers):
+        self.servers = servers
+
+    def get_server(self):
+
+        return min(self.servers, key=lambda s: s.load)
+
+
+servers = [
+    Server("Server-1"),
+    Server("Server-2"),
+    Server("Server-3")
+]
+
+rr = RoundRobin(servers)
+
+lc = LeastConnections(servers)
+
+print("Round Robin Allocation:")
+
+for i in range(10):
+
+    s = rr.get_server()
+
+    s.handle_request()
+
+    print(f"Request {i+1} -> {s.name}")
+
+for s in servers:
+    s.load = 0
+
+print("\nLeast Connections Allocation:")
+
+for i in range(10):
+
+    s = lc.get_server()
+
+    s.handle_request()
+
+    print(f"Request {i+1} -> {s.name}")
